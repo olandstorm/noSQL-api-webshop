@@ -1,23 +1,18 @@
 const express = require('express');
 const router = express.Router();
 
-/* GET all users / do not return passwords */
+/* GET all products */
 router.get('/', (req, res) => {
   res.send('respond with a resource');
 });
 
-/* POST one user id / return all info of user */
-router.post('/', (req, res) => {
+/* GET specific product */
+router.get('/:id', (req, res) => {
   res.send('respond with a resource');
 });
 
-/* POST create a new user */
+/* POST a new product */
 router.post('/add', (req, res) => {
-  res.send('respond with a resource');
-});
-
-/* POST login a user */
-router.post('/login', (req, res) => {
   res.send('respond with a resource');
 });
 
