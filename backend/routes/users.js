@@ -3,7 +3,13 @@ const router = express.Router();
 
 /* GET all users / do not return passwords */
 router.get('/', (req, res) => {
-  res.send('respond with a resource');
+  req.app.locals.db
+    .collection('users')
+    .find({}, { projection: { password: 0 } })
+    .toArray()
+    .then((results) => {
+      res.json(results);
+    });
 });
 
 /* POST one user id / return all info of user */
