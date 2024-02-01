@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { randomUUID } = require('crypto');
 
 /* GET all users / do not return passwords */
 router.get('/', (req, res) => {
@@ -34,7 +35,16 @@ router.post('/', (req, res) => {
 
 /* POST create a new user */
 router.post('/add', (req, res) => {
-  res.send('respond with a resource');
+  console.log(req.body);
+  let newUser = {
+    id: randomUUID(),
+    name: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
+  };
+  console.log(newUser);
+  req.app.locals.db.collection('users').insertOne(newUser);
+  res.status(201).json({ message: 'The user has been added succesfully!' });
 });
 
 /* POST login a user */
