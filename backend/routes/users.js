@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { randomUUID } = require('crypto');
+const { ObjectId } = require('mongodb');
 
 /* GET all users / do not return passwords */
 router.get('/', (req, res) => {
@@ -23,7 +23,7 @@ router.post('/', (req, res) => {
   console.log(userId);
   req.app.locals.db
     .collection('users')
-    .findOne({ id: userId })
+    .findOne({ _id: new ObjectId(userId) })
     .then((user) => {
       if (user) {
         res.json(user);
@@ -37,7 +37,6 @@ router.post('/', (req, res) => {
 router.post('/add', (req, res) => {
   console.log(req.body);
   let newUser = {
-    id: randomUUID(),
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
@@ -48,30 +47,39 @@ router.post('/add', (req, res) => {
 });
 
 /* POST login a user */
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const emailInput = req.body.email;
   const passwordInput = req.body.password;
+  console.log('Attempting to find user:', emailInput, passwordInput);
+  try {
+    console.log(
+      'Received request with email:',
+      emailInput,
+      'and password:',
+      passwordInput
+    );
 
-  req.app.locals.db
-    .collection('users')
-    .findOne({ email: emailInput, password: passwordInput }, (err, user) => {
-      if (err) {
-        console.error('Error while looking up user:', err);
-        req.status(500).json({ message: 'Internal Server Error' });
-        return;
-      }
-      if (user) {
-        if (user.password === passwordInput) {
-          res.json({ user: user.id });
-        } else {
-          res.status(401).json({ message: 'Incorrect Password' });
-        }
+    const user = await req.app.locals.db
+      .collection('users')
+      .findOne({ email: emailInput });
+
+    console.log('User found', user);
+
+    if (user) {
+      if (user.password === passwordInput) {
+        res.json({ user: user._id });
       } else {
-        res.status(401).json({ message: 'User does not exist!' });
+        res.status(401).json({ message: 'Wrong password' });
       }
-    });
-
-  res.send('respond with a resource');
+    } else {
+      res
+        .status(401)
+        .json({ message: 'User does not exist or something else is wrong!' });
+    }
+  } catch {
+    console.error('Error while looking up user:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
 
 module.exports = router;

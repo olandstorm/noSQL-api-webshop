@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { randomUUID } = require('crypto');
+const { ObjectId } = require('mongodb');
 
 /* GET all products */
 router.get('/', (req, res) => {
@@ -25,7 +25,7 @@ router.get('/:id', (req, res) => {
   console.log(productId);
   req.app.locals.db
     .collection('products')
-    .findOne({ id: productId })
+    .findOne({ _id: new ObjectId(productId) })
     .then((product) => {
       if (product) {
         res.json(product);
@@ -39,7 +39,6 @@ router.get('/:id', (req, res) => {
 router.post('/add', (req, res) => {
   console.log(req.body);
   let newProduct = {
-    id: randomUUID(),
     name: req.body.name,
     description: req.body.description,
     price: req.body.price,
