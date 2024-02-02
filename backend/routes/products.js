@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { randomUUID } = require('crypto');
 
 /* GET all products */
 router.get('/', (req, res) => {
@@ -36,7 +37,17 @@ router.get('/:id', (req, res) => {
 
 /* POST a new product */
 router.post('/add', (req, res) => {
-  res.send('respond with a resource');
+  console.log(req.body);
+  let newProduct = {
+    id: randomUUID(),
+    name: req.body.name,
+    description: req.body.description,
+    price: req.body.price,
+    lager: req.body.lager,
+  };
+  console.log(newProduct);
+  req.app.locals.db.collection('products').insertOne(newProduct);
+  res.status(201).json({ message: 'The product has been added succesfully!' });
 });
 
 module.exports = router;
