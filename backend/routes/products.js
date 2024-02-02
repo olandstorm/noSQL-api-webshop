@@ -20,7 +20,18 @@ router.get('/', (req, res) => {
 
 /* GET specific product */
 router.get('/:id', (req, res) => {
-  res.send('respond with a resource');
+  const productId = req.params.id;
+  console.log(productId);
+  req.app.locals.db
+    .collection('products')
+    .findOne({ id: productId })
+    .then((product) => {
+      if (product) {
+        res.json(product);
+      } else {
+        res.status(404).json({ error: 'Product does not excist!' });
+      }
+    });
 });
 
 /* POST a new product */
