@@ -49,6 +49,28 @@ router.post('/add', (req, res) => {
 
 /* POST login a user */
 router.post('/login', (req, res) => {
+  const emailInput = req.body.email;
+  const passwordInput = req.body.password;
+
+  req.app.locals.db
+    .collection('users')
+    .findOne({ email: emailInput, password: passwordInput }, (err, user) => {
+      if (err) {
+        console.error('Error while looking up user:', err);
+        req.status(500).json({ message: 'Internal Server Error' });
+        return;
+      }
+      if (user) {
+        if (user.password === passwordInput) {
+          res.json({ user: user.id });
+        } else {
+          res.status(401).json({ message: 'Incorrect Password' });
+        }
+      } else {
+        res.status(401).json({ message: 'User does not exist!' });
+      }
+    });
+
   res.send('respond with a resource');
 });
 
