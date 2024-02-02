@@ -3,7 +3,19 @@ const router = express.Router();
 
 /* GET all products */
 router.get('/', (req, res) => {
-  res.send('respond with a resource');
+  req.app.locals.db
+    .collection('products')
+    .find()
+    .toArray()
+    .then((results) => {
+      if (results) {
+        res.json(results);
+      } else {
+        res
+          .status(404)
+          .json({ error: 'There are no products in the database!' });
+      }
+    });
 });
 
 /* GET specific product */
