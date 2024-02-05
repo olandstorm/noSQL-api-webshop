@@ -94,4 +94,36 @@ router.post('/add', async (req, res) => {
   }
 });
 
+/* POST a new order for a user */
+router.post('/user', async (req, res) => {
+  try {
+    const tokenFromClient = req.body.token;
+    const correctToken = process.env.USER_TOKEN;
+
+    if (tokenFromClient !== correctToken) {
+      console.error('Wrong token input!');
+      return res.status(401).json({
+        message: 'You need to have the correct token to view your orders!',
+      });
+    }
+
+    const userId = req.body.user;
+
+    const userOrders = await req.app.locals.db
+      .collection('orders')
+      .find({ user: userId })
+      .toArray();
+
+    if (userOrders.length === 0) {
+      return res
+        .status(404)
+        .json({ message: 'No orders found with this user!' });
+    }
+    res.json(userOrders);
+  } catch (error) {
+    console.error('Error while trying to get orders from user:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
 module.exports = router;
