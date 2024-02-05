@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { ObjectId } = require('mongodb');
 const CryptoJS = require('crypto-js');
+require('dotenv').config();
 
 /* GET all users / do not return passwords */
 router.get('/', (req, res) => {
@@ -30,7 +31,7 @@ router.post('/', (req, res) => {
         try {
           const originalPassword = CryptoJS.AES.decrypt(
             user.password,
-            'SaltNyckel'
+            process.env.SALT_KEY
           ).toString(CryptoJS.enc.Utf8);
           user.password = originalPassword;
           res.json(user);
@@ -50,11 +51,11 @@ router.post('/add', (req, res) => {
   const userPassword = req.body.password;
   const cryptedPassword = CryptoJS.AES.encrypt(
     userPassword,
-    'SaltNyckel'
+    process.env.SALT_KEY
   ).toString();
   const ogPassword = CryptoJS.AES.decrypt(
     cryptedPassword,
-    'SaltNyckel'
+    process.env.SALT_KEY
   ).toString(CryptoJS.enc.Utf8);
   console.log(ogPassword);
 
@@ -81,7 +82,7 @@ router.post('/login', async (req, res) => {
     if (user) {
       const originalPassword = CryptoJS.AES.decrypt(
         user.password,
-        'SaltNyckel'
+        process.env.SALT_KEY
       ).toString(CryptoJS.enc.Utf8);
       if (originalPassword === passwordInput) {
         res.json({ user: user._id });

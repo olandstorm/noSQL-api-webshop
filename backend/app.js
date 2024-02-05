@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+require('dotenv').config();
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -12,7 +13,7 @@ const app = express();
 
 const MongoClient = require('mongodb').MongoClient;
 
-MongoClient.connect('mongodb://127.0.0.1:27017', {
+MongoClient.connect(process.env.MONGODB_SERVER, {
   useUnifiedTopology: true,
 }).then((client) => {
   console.log('Databasen is up and running! Och vi har kontakt!');
