@@ -68,6 +68,25 @@ router.post('/add', async (req, res) => {
 });
 
 /* GET all products with a specific category */
-router.get('/category/:id', (req, res) => {});
+router.get('/category/:id', async (req, res) => {
+  try {
+    const category = req.params.id;
+
+    const filteredProducts = await req.app.locals.db
+      .collection('products')
+      .find({ category: category })
+      .toArray();
+
+    if (filteredProducts.length === 0) {
+      return res
+        .status(404)
+        .json({ message: 'No products found in this category!' });
+    }
+    res.json(filteredProducts);
+  } catch (error) {
+    console.error('Error while trying to get filtered products:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
 
 module.exports = router;

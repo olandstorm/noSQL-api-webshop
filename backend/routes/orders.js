@@ -94,7 +94,7 @@ router.post('/add', async (req, res) => {
   }
 });
 
-/* POST a new order for a user */
+/* POST get all orders from a user */
 router.post('/user', async (req, res) => {
   try {
     const tokenFromClient = req.body.token;
