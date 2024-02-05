@@ -67,4 +67,7 @@ router.post('/add', async (req, res) => {
   }
 });
 
+/* GET all products with a specific category */
+router.get('/category/:id', (req, res) => {});
+
 module.exports = router;
