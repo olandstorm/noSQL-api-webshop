@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { ObjectId } = require('mongodb');
+require('dotenv').config();
 
 /* GET all products */
 router.get('/', (req, res) => {
@@ -36,17 +37,34 @@ router.get('/:id', (req, res) => {
 });
 
 /* POST a new product */
-router.post('/add', (req, res) => {
-  console.log(req.body);
-  let newProduct = {
-    name: req.body.name,
-    description: req.body.description,
-    price: req.body.price,
-    lager: req.body.lager,
-  };
-  console.log(newProduct);
-  req.app.locals.db.collection('products').insertOne(newProduct);
-  res.status(201).json({ message: 'The product has been added succesfully!' });
+router.post('/add', async (req, res) => {
+  try {
+    const tokenFromClient = req.body.token;
+    const correctToken = process.env.ADMIN_TOKEN;
+
+    if (tokenFromClient !== correctToken) {
+      console.error('Wrong token input!');
+      return res.status(401).json({
+        message: 'You need to have the correct token to create a new product!',
+      });
+    }
+    const newProduct = {
+      name: req.body.name,
+      description: req.body.description,
+      price: req.body.price,
+      lager: req.body.lager,
+      category: req.body.category,
+    };
+
+    console.log(newProduct);
+    await req.app.locals.db.collection('products').insertOne(newProduct);
+    res
+      .status(201)
+      .json({ message: 'The product has been added succesfully!' });
+  } catch (error) {
+    console.error('Error while trying to add product:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
 
 module.exports = router;
