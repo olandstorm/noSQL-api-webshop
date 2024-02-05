@@ -86,12 +86,10 @@ router.post('/login', async (req, res) => {
       if (originalPassword === passwordInput) {
         res.json({ user: user._id });
       } else {
-        res.status(401).json({ message: 'Wrong password' });
+        res.status(401).json({ message: 'Invalid username or password!' });
       }
     } else {
-      res
-        .status(401)
-        .json({ message: 'User does not exist or something else is wrong!' });
+      res.status(401).json({ message: 'Invalid username or password!' });
     }
   } catch {
     res.status(500).json({ message: 'Internal Server Error' });
