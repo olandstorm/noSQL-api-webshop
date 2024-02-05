@@ -3,18 +3,33 @@ const router = express.Router();
 const { ObjectId } = require('mongodb');
 
 /* GET all orders */
-router.get('/all', (req, res) => {
-  req.app.locals.db
-    .collection('orders')
-    .find()
-    .toArray()
-    .then((results) => {
-      if (results) {
-        res.json(results);
-      } else {
-        res.status(404).json({ error: 'There are no orders in the database!' });
-      }
-    });
+router.get('/all/:token', async (req, res) => {
+  try {
+    const tokenFromClient = req.params.token;
+    const correctToken = process.env.ADMIN_TOKEN;
+
+    if (tokenFromClient !== correctToken) {
+      console.error('Wrong token input!');
+      return res.status(401).json({
+        message: 'You need to have the correct token to get all orders!',
+      });
+    }
+
+    const orders = await req.app.locals.db
+      .collection('orders')
+      .find()
+      .toArray();
+
+    if (orders.length === 0) {
+      return res
+        .status(404)
+        .json({ error: 'There are no orders in the database!' });
+    }
+    res.json(orders);
+  } catch (error) {
+    console.error('Error while reading all orders', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
 
 /* POST a new order for a user */

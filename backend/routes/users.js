@@ -53,11 +53,6 @@ router.post('/add', (req, res) => {
     userPassword,
     process.env.SALT_KEY
   ).toString();
-  const ogPassword = CryptoJS.AES.decrypt(
-    cryptedPassword,
-    process.env.SALT_KEY
-  ).toString(CryptoJS.enc.Utf8);
-  console.log(ogPassword);
 
   let newUser = {
     name: req.body.name,
