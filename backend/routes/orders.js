@@ -111,7 +111,7 @@ router.post('/user', async (req, res) => {
 
     const userOrders = await req.app.locals.db
       .collection('orders')
-      .find({ user: userId })
+      .find({ user: new ObjectId(userId) })
       .toArray();
 
     if (userOrders.length === 0) {
