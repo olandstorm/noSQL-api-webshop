@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { ObjectId } = require('mongodb');
+const CryptoJS = require('crypto-js');
 
 /* GET all users / do not return passwords */
 router.get('/', (req, res) => {
@@ -26,7 +27,17 @@ router.post('/', (req, res) => {
     .findOne({ _id: new ObjectId(userId) })
     .then((user) => {
       if (user) {
-        res.json(user);
+        try {
+          const originalPassword = CryptoJS.AES.decrypt(
+            user.password,
+            'SaltNyckel'
+          ).toString(CryptoJS.enc.Utf8);
+          user.password = originalPassword;
+          res.json(user);
+        } catch (error) {
+          console.error('Error while decrypting the password:', error);
+          res.status(500).json({ error: 'Internal Server Error' });
+        }
       } else {
         res.status(404).json({ error: 'User does not excist!' });
       }
@@ -36,11 +47,23 @@ router.post('/', (req, res) => {
 /* POST create a new user */
 router.post('/add', (req, res) => {
   console.log(req.body);
+  const userPassword = req.body.password;
+  const cryptedPassword = CryptoJS.AES.encrypt(
+    userPassword,
+    'SaltNyckel'
+  ).toString();
+  const ogPassword = CryptoJS.AES.decrypt(
+    cryptedPassword,
+    'SaltNyckel'
+  ).toString(CryptoJS.enc.Utf8);
+  console.log(ogPassword);
+
   let newUser = {
     name: req.body.name,
     email: req.body.email,
-    password: req.body.password,
+    password: cryptedPassword,
   };
+
   console.log(newUser);
   req.app.locals.db.collection('users').insertOne(newUser);
   res.status(201).json({ message: 'The user has been added succesfully!' });
@@ -50,23 +73,17 @@ router.post('/add', (req, res) => {
 router.post('/login', async (req, res) => {
   const emailInput = req.body.email;
   const passwordInput = req.body.password;
-  console.log('Attempting to find user:', emailInput, passwordInput);
   try {
-    console.log(
-      'Received request with email:',
-      emailInput,
-      'and password:',
-      passwordInput
-    );
-
     const user = await req.app.locals.db
       .collection('users')
       .findOne({ email: emailInput });
 
-    console.log('User found', user);
-
     if (user) {
-      if (user.password === passwordInput) {
+      const originalPassword = CryptoJS.AES.decrypt(
+        user.password,
+        'SaltNyckel'
+      ).toString(CryptoJS.enc.Utf8);
+      if (originalPassword === passwordInput) {
         res.json({ user: user._id });
       } else {
         res.status(401).json({ message: 'Wrong password' });
@@ -77,7 +94,6 @@ router.post('/login', async (req, res) => {
         .json({ message: 'User does not exist or something else is wrong!' });
     }
   } catch {
-    console.error('Error while looking up user:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
