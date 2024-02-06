@@ -1,0 +1,87 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*:focus {
+  outline: 1.5px solid #c1c8cc93;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #e9e9e9;
+  color: #242424;
+}
+
+ol,
+ul {
+  list-style: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+a {
+  text-decoration: none;
+  color: #037196;
+}
+
+a:hover {
+  color: #025f89;
+}
+
+a:active {
+  color: #025f89;
+}
+
+a:visited {
+  color: #c72505;
+}
+
+a:visited:hover {
+  color: #025f89;
+}
+
+button {
+  background-color: #025f89;
+  border: 1.5px solid #037196;
+  color: #e9e9e9;
+  border-radius: 4px;
+  padding: 4px 10px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #037196;
+  border: 1.5px solid #025f89;
+}
+
+button:active {
+  background-color: #037196;
+  border: 1.5px solid #025f89;
+}
+
+input {
+  background: #e2e2e2;
+  border: 1.5px solid #2c3e50;
+  color: #242424;
+  border-radius: 4px;
+  padding: 5px 4px;
+}
+
+input:hover {
+  background-color: #e9e9e9;
+}
+input:focus {
+  background: #e2e2e2;
+}
+
+::placeholder {
+  color: #242424;
+}
