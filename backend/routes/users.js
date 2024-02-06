@@ -80,7 +80,7 @@ router.post('/login', async (req, res) => {
         process.env.SALT_KEY
       ).toString(CryptoJS.enc.Utf8);
       if (originalPassword === passwordInput) {
-        res.json({ user: user._id });
+        res.json({ user: user._id, key: process.env.USER_TOKEN });
       } else {
         res.status(401).json({ message: 'Invalid username or password!' });
       }
