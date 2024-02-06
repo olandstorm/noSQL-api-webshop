@@ -2,7 +2,21 @@ const express = require('express');
 const router = express.Router();
 
 /* GET all categories */
-router.get('/', (req, res) => {});
+router.get('/', (req, res) => {
+  req.app.locals.db
+    .collection('category')
+    .find()
+    .toArray()
+    .then((results) => {
+      if (results) {
+        res.json(results);
+      } else {
+        res
+          .status(404)
+          .json({ error: 'There are no categories in the database!' });
+      }
+    });
+});
 
 /* POST create a new category */
 router.post('/add', async (req, res) => {
