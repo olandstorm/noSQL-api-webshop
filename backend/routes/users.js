@@ -46,7 +46,7 @@ router.post('/', (req, res) => {
 });
 
 /* POST create a new user */
-router.post('/add', (req, res) => {
+router.post('/add', async (req, res) => {
   console.log(req.body);
   const userPassword = req.body.password;
   const cryptedPassword = CryptoJS.AES.encrypt(
@@ -54,15 +54,17 @@ router.post('/add', (req, res) => {
     process.env.SALT_KEY
   ).toString();
 
-  let newUser = {
+  const newUser = {
     name: req.body.name,
     email: req.body.email,
     password: cryptedPassword,
   };
 
   console.log(newUser);
-  req.app.locals.db.collection('users').insertOne(newUser);
-  res.status(201).json({ message: 'The user has been added succesfully!' });
+  const { insertedId } = await req.app.locals.db
+    .collection('users')
+    .insertOne(newUser);
+  res.status(201).json({ user: insertedId, key: process.env.USER_TOKEN });
 });
 
 /* POST login a user */

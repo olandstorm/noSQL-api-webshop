@@ -85,3 +85,13 @@ input:focus {
 ::placeholder {
   color: #242424;
 }
+
+header {
+  display: flex;
+  flex-direction: column;
+}
+
+header img {
+  max-width: 100%;
+  height: auto;
+}
