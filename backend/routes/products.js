@@ -77,11 +77,6 @@ router.get('/category/:id', async (req, res) => {
       .find({ category: category })
       .toArray();
 
-    if (filteredProducts.length === 0) {
-      return res
-        .status(404)
-        .json({ message: 'No products found in this category!' });
-    }
     res.json(filteredProducts);
   } catch (error) {
     console.error('Error while trying to get filtered products:', error);
