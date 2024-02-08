@@ -113,6 +113,29 @@ function printLoginBtn() {
   myOrders.classList.add('hidden');
 }
 
+function needToLogin() {
+  toggleLoginContainer();
+  loginContainer.innerHTML = '';
+  const loginNeededMsg = document.createElement('h2');
+  loginNeededMsg.innerText = 'You need to login to add items to cart';
+  const getLoggedInBtn = document.createElement('button');
+  getLoggedInBtn.innerText = 'Take me to login';
+  getLoggedInBtn.classList.add('button');
+  const closeLoginBtn = document.createElement('button');
+  closeLoginBtn.innerText = 'X';
+  closeLoginBtn.ariaLabel = 'Close Login';
+  closeLoginBtn.classList.add('close_login');
+
+  loginContainer.append(loginNeededMsg, getLoggedInBtn, closeLoginBtn);
+
+  closeLoginBtn.addEventListener('click', toggleLoginContainer);
+
+  getLoggedInBtn.addEventListener('click', () => {
+    toggleLoginContainer();
+    printLoginForm();
+  });
+}
+
 /**
  * -----------------------------
  * ---- NEW USER FUNCTIONS -----
@@ -353,6 +376,11 @@ function increaseQuantity(product, quantityDisplay) {
 }
 
 function addToCart(product, quantityDisplay, addToCartBtn) {
+  if (!localStorage.getItem('user')) {
+    needToLogin();
+    return;
+  }
+
   let currentQuantity = parseInt(quantityDisplay.innerText);
   if (currentQuantity > 0) {
     const cartItem = {
