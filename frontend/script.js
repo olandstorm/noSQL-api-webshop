@@ -17,19 +17,18 @@ logout.addEventListener('click', logoutUser);
 toCart.addEventListener('click', printCartProducts);
 headerLogo.addEventListener('click', printOptions);
 
+// Check login state
+if (localStorage.getItem('user')) {
+  printLogoutBtn();
+} else {
+  printLoginBtn();
+}
+
 /**
  * -----------------------------
  * ---- LOGIN FUNCTIONS --------
  * -----------------------------
  */
-
-if (localStorage.getItem('user')) {
-  // ÄR INLOGGAD
-  printLogoutBtn();
-} else {
-  // ÄR INTE INLOGGAD
-  printLoginBtn();
-}
 
 function toggleLoginContainer() {
   loginContainer.classList.toggle('hidden');
@@ -40,60 +39,26 @@ function logoutUser() {
   localStorage.removeItem('key');
   localStorage.removeItem('products');
   localStorage.removeItem('productStockStatus');
+  productStockStatus =
+    JSON.parse(localStorage.getItem('productStockStatus')) || {};
   printLoginBtn();
+  printOptions();
 }
 
 function printLoginForm() {
   toggleLoginContainer();
   loginContainer.innerHTML = '';
-  const loginHeader = document.createElement('h2');
-  loginHeader.innerText = 'Login';
-  const inputEmail = document.createElement('input');
-  inputEmail.placeholder = 'Email';
-  const inputPassword = document.createElement('input');
-  inputPassword.placeholder = 'Password';
-  inputPassword.type = 'password';
-  const loginBtn = document.createElement('button');
-  loginBtn.innerText = 'Log in';
-  loginBtn.classList.add('button');
-  const newUserBtn = document.createElement('button');
-  newUserBtn.innerText = 'Create new user';
-  newUserBtn.classList.add('button');
-  newUserBtn.addEventListener('click', newUserForm);
-  const closeLoginBtn = document.createElement('button');
-  closeLoginBtn.innerText = 'X';
-  closeLoginBtn.ariaLabel = 'Close Login';
-  closeLoginBtn.classList.add('close_login');
 
-  closeLoginBtn.addEventListener('click', toggleLoginContainer);
-
-  loginBtn.addEventListener('click', () => {
-    const sendLogin = {
-      email: inputEmail.value,
-      password: inputPassword.value,
-    };
-
-    fetch('http://localhost:3000/api/users/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(sendLogin),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log('user', data);
-
-        if (data.user && data.key) {
-          localStorage.setItem('user', data.user);
-          localStorage.setItem('key', data.key);
-          printLogoutBtn();
-          toggleLoginContainer();
-        } else {
-          alert(data.message);
-        }
-      });
+  const loginHeader = createH2('Login');
+  const inputEmail = createInput('Email', 'email');
+  const inputPassword = createInput('Password', 'password', 'password');
+  const loginBtn = createBtn('Log in', 'button', function () {
+    const email = inputEmail.value;
+    const password = inputPassword.value;
+    loginUser(email, password);
   });
+  const newUserBtn = createBtn('Create new user', 'button', newUserForm);
+  const closeLoginBtn = createCloseButton();
 
   loginContainer.append(
     loginHeader,
@@ -103,6 +68,28 @@ function printLoginForm() {
     newUserBtn,
     closeLoginBtn
   );
+}
+
+function loginUser(email, password) {
+  fetch('http://localhost:3000/api/users/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log('user', data);
+      if (data.user && data.key) {
+        localStorage.setItem('user', data.user);
+        localStorage.setItem('key', data.key);
+        printLogoutBtn();
+        toggleLoginContainer();
+      } else {
+        alert(data.message);
+      }
+    });
 }
 
 function printLogoutBtn() {
@@ -122,24 +109,15 @@ function printLoginBtn() {
 function needToLogin() {
   toggleLoginContainer();
   loginContainer.innerHTML = '';
-  const loginNeededMsg = document.createElement('h2');
-  loginNeededMsg.innerText = 'You need to login to add items to cart';
-  const getLoggedInBtn = document.createElement('button');
-  getLoggedInBtn.innerText = 'Take me to login';
-  getLoggedInBtn.classList.add('button');
-  const closeLoginBtn = document.createElement('button');
-  closeLoginBtn.innerText = 'X';
-  closeLoginBtn.ariaLabel = 'Close Login';
-  closeLoginBtn.classList.add('close_login');
 
-  loginContainer.append(loginNeededMsg, getLoggedInBtn, closeLoginBtn);
-
-  closeLoginBtn.addEventListener('click', toggleLoginContainer);
-
-  getLoggedInBtn.addEventListener('click', () => {
+  const loginNeededMsg = createH2('You need to login to add items to cart');
+  const getLoggedInBtn = createBtn('Take me to login', 'button', () => {
     toggleLoginContainer();
     printLoginForm();
   });
+  const closeLoginBtn = createCloseButton();
+
+  loginContainer.append(loginNeededMsg, getLoggedInBtn, closeLoginBtn);
 }
 
 /**
@@ -150,26 +128,17 @@ function needToLogin() {
 
 function newUserForm() {
   loginContainer.innerHTML = '';
-  const newUserHeader = document.createElement('h2');
-  newUserHeader.innerText = 'Create new user';
-  newUserName = document.createElement('input');
-  newUserName.placeholder = 'Name';
-  newUserEmail = document.createElement('input');
-  newUserEmail.placeholder = 'Email';
-  newUserPassword = document.createElement('input');
-  newUserPassword.placeholder = 'Password';
-  newUserPassword.type = 'password';
-  const createNewUserBtn = document.createElement('button');
-  createNewUserBtn.innerText = 'Create and log in user';
-  createNewUserBtn.classList.add('button');
-  const closeLoginBtn = document.createElement('button');
-  closeLoginBtn.innerText = 'X';
-  closeLoginBtn.ariaLabel = 'Close Login';
-  closeLoginBtn.classList.add('close_login');
 
-  closeLoginBtn.addEventListener('click', toggleLoginContainer);
-
-  createNewUserBtn.addEventListener('click', saveNewUser);
+  const newUserHeader = createH2('Create new user');
+  newUserName = createInput('Name', 'text');
+  newUserEmail = createInput('Email', 'email');
+  newUserPassword = createInput('Password', 'password', 'password');
+  const createNewUserBtn = createBtn(
+    'Create and log in user',
+    'button',
+    saveNewUser
+  );
+  const closeLoginBtn = createCloseButton();
 
   loginContainer.append(
     newUserHeader,
@@ -215,6 +184,7 @@ function saveNewUser() {
 
 function printOptions() {
   mainContainer.innerHTML = '';
+
   const mainHeader = document.createElement('h1');
   mainHeader.innerText = 'Welcome to the world leading webshop!';
   const viewAllBtn = createBtn(
@@ -222,13 +192,10 @@ function printOptions() {
     'view_all_btn',
     printAllProducts
   );
-  const byCategoryHeader = document.createElement('h2');
-  byCategoryHeader.innerText = 'Or view by categories:';
+  const byCategoryHeader = createH2('Or view by categories:');
   byCategoryHeader.classList.add('category_header');
   const categoryBtnContainer = document.createElement('div');
   categoryBtnContainer.classList.add('category_container');
-
-  viewAllBtn.addEventListener('click', printAllProducts);
 
   mainContainer.append(
     mainHeader,
@@ -265,10 +232,8 @@ printOptions();
 
 function printAllProducts() {
   mainContainer.innerHTML = '';
-  const allProductsHeader = document.createElement('h2');
-  allProductsHeader.innerText = 'All products';
-  mainContainer.append(allProductsHeader);
 
+  const allProductsHeader = createH2('All products');
   const ul = document.createElement('ul');
   ul.classList.add('all_cards_container');
 
@@ -283,19 +248,20 @@ function printAllProducts() {
     .catch((error) => {
       console.error('Error when trying to fetch products:', error);
     });
-  mainContainer.appendChild(ul);
+
+  mainContainer.append(allProductsHeader, ul);
 }
 
 function printProductsByCategory(categoryId, categoryName) {
   mainContainer.innerHTML = '';
+
   fetch(`http://localhost:3000/api/products/category/${categoryId}`)
     .then((res) => res.json())
     .then((products) => {
-      const categoryHeader = document.createElement('h2');
-      categoryHeader.innerText = `${categoryName}`;
-
+      const categoryHeader = createH2(categoryName);
       const productList = document.createElement('ul');
       productList.classList.add('card_container');
+
       products.forEach((product) => {
         const productCard = createProductCard(product);
         productList.appendChild(productCard);
@@ -311,44 +277,19 @@ function createProductCard(product) {
   const li = document.createElement('li');
   li.classList.add('product_card');
 
-  const productName = document.createElement('span');
-  productName.innerText = product.name;
-  productName.classList.add('product_name');
-
-  const placeholderImg = document.createElement('img');
-  placeholderImg.src = 'src/img/placeholder.webp';
-  placeholderImg.alt = 'Placeholder img';
-  placeholderImg.width = '768';
-  placeholderImg.height = '1024';
-  placeholderImg.classList.add('card_img');
-
-  const productPrice = document.createElement('span');
-  productPrice.innerText = '$' + product.price;
-  productPrice.classList.add('product_price');
-
-  const amountContainer = document.createElement('div');
-  amountContainer.classList.add('amount_container');
-
-  const decreaseBtn = createBtn('-', 'decrease_btn', function () {
-    decreaseQuantity(quantityDisplay);
-  });
-  const quantityDisplay = document.createElement('span');
-  quantityDisplay.innerText = '0';
-  quantityDisplay.classList.add('quantity_display');
-  const increaseBtn = createBtn('+', 'increase_btn', function () {
-    increaseQuantity(product, quantityDisplay);
-  });
-
-  amountContainer.append(decreaseBtn, quantityDisplay, increaseBtn);
-
+  const productName = createSpan(product.name, 'product_name');
+  const placeholderImg = createPlaceholderImg('card_img');
+  const productPrice = createSpan('$' + product.price, 'product_price');
+  const amountContainer = createAmountContainer(product);
   const addToCartBtn = createBtn('Add to cart', 'add_to_cart_btn', function () {
-    addToCart(product, quantityDisplay, addToCartBtn);
+    addToCart(
+      product,
+      amountContainer.querySelector('.quantity_display'),
+      addToCartBtn
+    );
   });
 
-  if (product.lager === 0 || productStockStatus[product._id] === 0) {
-    addToCartBtn.disabled = true;
-    addToCartBtn.innerText = 'Out of stock';
-  }
+  updateAddToCartBtn(product, addToCartBtn);
 
   li.append(
     productName,
@@ -411,20 +352,21 @@ function addToCart(product, quantityDisplay, addToCartBtn) {
     updateAddToCartBtn(product, addToCartBtn);
     quantityDisplay.innerText = '0';
   } else {
+    // CHANGE THIS LATER
     alert('Please change amount before adding to cart!');
   }
 }
 
 function updateAddToCartBtn(product, addToCartBtn) {
-  if (
-    productStockStatus[product._id] === undefined ||
-    productStockStatus[product._id] > 0
-  ) {
-    addToCartBtn.disabled = false;
-    addToCartBtn.innerText = 'Add to cart';
-  } else {
+  const productStock = productStockStatus.hasOwnProperty(product._id)
+    ? productStockStatus[product._id]
+    : product.lager;
+  if (product.lager === 0 || productStock === 0) {
     addToCartBtn.disabled = true;
     addToCartBtn.innerText = 'Out of stock';
+  } else {
+    addToCartBtn.disabled = false;
+    addToCartBtn.innerText = 'Add to cart';
   }
 }
 
@@ -456,12 +398,9 @@ function printCartProducts() {
     return;
   }
 
-  const cartHeader = document.createElement('h2');
-  cartHeader.innerText = 'Cart';
-
+  const cartHeader = createH2('Cart');
   const ul = document.createElement('ul');
   ul.classList.add('cart_container');
-
   const placeOrderBtn = createBtn('Place order', 'place_order_btn', placeOrder);
 
   products.forEach((cartItem) => {
@@ -471,24 +410,12 @@ function printCartProducts() {
         const li = document.createElement('li');
         li.classList.add('cart_card');
 
-        const placeholderImg = document.createElement('img');
-        placeholderImg.src = 'src/img/placeholder.webp';
-        placeholderImg.alt = 'Placeholder img';
-        placeholderImg.width = '768';
-        placeholderImg.height = '1024';
-        placeholderImg.classList.add('cart_card_img');
+        const placeholderImg = createPlaceholderImg('cart_card_img');
+        const cartTextContainer = createCartTextContainer(
+          product,
+          cartItem.quantity
+        );
 
-        const cartTextContainer = document.createElement('div');
-        cartTextContainer.classList.add('cart_text_container');
-
-        const productName = document.createElement('span');
-        productName.innerText = product.name;
-        productName.classList.add('cart_product_name');
-
-        const cartAmount = document.createElement('span');
-        cartAmount.innerText = `Amount: ${cartItem.quantity}`;
-
-        cartTextContainer.append(productName, cartAmount);
         li.append(placeholderImg, cartTextContainer);
         ul.appendChild(li);
         mainContainer.append(cartHeader, ul, placeOrderBtn);
@@ -502,8 +429,7 @@ function printCartProducts() {
 function printEmptyCart() {
   mainContainer.innerHTML = '';
 
-  const cartEmptyHeader = document.createElement('h2');
-  cartEmptyHeader.innerText = 'Your cart is empty';
+  const cartEmptyHeader = createH2('Your cart is empty');
   cartEmptyHeader.classList.add('empty_cart_header');
 
   const viewAllBtn = createBtn(
@@ -511,13 +437,10 @@ function printEmptyCart() {
     'view_all_btn',
     printAllProducts
   );
-  const byCategoryHeader = document.createElement('h2');
-  byCategoryHeader.innerText = 'Or view by categories:';
+  const byCategoryHeader = createH2('Or view by categories:');
   byCategoryHeader.classList.add('category_header');
   const categoryBtnContainer = document.createElement('div');
   categoryBtnContainer.classList.add('category_container');
-
-  viewAllBtn.addEventListener('click', printAllProducts);
 
   mainContainer.append(
     cartEmptyHeader,
@@ -563,4 +486,77 @@ function createBtn(text, className, onClick) {
     button.addEventListener('click', onClick);
   }
   return button;
+}
+
+function createAmountContainer(product) {
+  const amountContainer = document.createElement('div');
+  amountContainer.classList.add('amount_container');
+
+  const decreaseBtn = createBtn('-', 'decrease_btn', function () {
+    decreaseQuantity(quantityDisplay);
+  });
+
+  const quantityDisplay = document.createElement('span');
+  quantityDisplay.innerText = '0';
+  quantityDisplay.classList.add('quantity_display');
+
+  const increaseBtn = createBtn('+', 'increase_btn', function () {
+    increaseQuantity(product, quantityDisplay);
+  });
+
+  amountContainer.append(decreaseBtn, quantityDisplay, increaseBtn);
+
+  return amountContainer;
+}
+
+function createH2(text) {
+  const h2 = document.createElement('h2');
+  h2.innerText = text;
+  return h2;
+}
+
+function createInput(placeholder, type, inputMode) {
+  const input = document.createElement('input');
+  input.placeholder = placeholder;
+  input.type = type;
+  if (inputMode) input.inputMode = inputMode;
+  return input;
+}
+
+function createSpan(text, className) {
+  const span = document.createElement('span');
+  span.innerText = text;
+  if (className) span.classList.add(className);
+  return span;
+}
+
+function createPlaceholderImg(className) {
+  const placeholderImg = document.createElement('img');
+  placeholderImg.src = 'src/img/placeholder.webp';
+  placeholderImg.alt = 'Placeholder image';
+  placeholderImg.width = '768';
+  placeholderImg.height = '1024';
+  placeholderImg.classList.add(className);
+  return placeholderImg;
+}
+
+function createCloseButton() {
+  const closeLoginBtn = document.createElement('button');
+  closeLoginBtn.innerText = 'X';
+  closeLoginBtn.ariaLabel = 'Close login';
+  closeLoginBtn.classList.add('close_login');
+  closeLoginBtn.addEventListener('click', toggleLoginContainer);
+  return closeLoginBtn;
+}
+
+function createCartTextContainer(product, quantity) {
+  const cartTextContainer = document.createElement('div');
+  cartTextContainer.classList.add('cart_text_container');
+
+  const productName = createSpan(product.name, 'cart_product_name');
+  const cartAmount = createSpan(`Amount: ${quantity}`, 'cart_amount');
+
+  cartTextContainer.append(productName, cartAmount);
+
+  return cartTextContainer;
 }
