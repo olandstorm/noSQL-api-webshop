@@ -36,6 +36,8 @@ function toggleLoginContainer() {
 function logoutUser() {
   localStorage.removeItem('user');
   localStorage.removeItem('key');
+  localStorage.removeItem('products');
+  localStorage.removeItem('productStockStatus');
   printLoginBtn();
 }
 
