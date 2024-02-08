@@ -352,7 +352,7 @@ function addToCart(product, quantityDisplay, addToCartBtn) {
     updateAddToCartBtn(product, addToCartBtn);
     quantityDisplay.innerText = '0';
   } else {
-    // CHANGE THIS LATER
+    // TODO: CHANGE THIS LATER
     alert('Please change amount before adding to cart!');
   }
 }
@@ -470,6 +470,54 @@ function printEmptyCart() {
 
 function placeOrder() {
   console.log('placing order');
+  const user = localStorage.getItem('user');
+  const products = JSON.parse(localStorage.getItem('products')) || [];
+
+  if (!user) {
+    // TODO: CHANGE THIS LATER
+    alert('Please log in to place an order!');
+    return;
+  }
+
+  if (products.length === 0) {
+    // TODO: CHANGE THIS LATER
+    alert('Empty cart!');
+    return;
+  }
+
+  const order = {
+    user: user,
+    products: products.map((item) => ({
+      productId: item.productId,
+      quantity: item.quantity,
+    })),
+  };
+
+  fetch('http://localhost:3000/api/orders/add', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(order),
+  })
+    .then((res) => {
+      if (res.ok) {
+        localStorage.removeItem('products');
+        localStorage.removeItem('productStockStatus');
+        productStockStatus =
+          JSON.parse(localStorage.getItem('productStockStatus')) || {};
+        printEmptyCart();
+        // TODO: CHANGE THIS LATER
+        alert('Order made!');
+      } else {
+        console.error('Failed to place order.');
+      }
+    })
+    .catch((error) => {
+      console.error('Error placing order:', error);
+      // TODO: CHANGE THIS LATER
+      alert('Failed to place order.');
+    });
 }
 
 /**
