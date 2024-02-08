@@ -91,6 +91,7 @@ h1 {
   text-transform: uppercase;
   font-weight: 400;
   font-size: 1.5rem;
+  margin: 80px auto 130px;
 }
 
 h2 {
@@ -134,6 +135,10 @@ header {
 
 .nav_item:hover {
   background-color: #e58a94;
+}
+
+footer {
+  height: 100px;
 }
 
 .popup {
@@ -293,4 +298,40 @@ header {
   width: auto;
   height: 55%;
   opacity: 0.7;
+}
+
+.cart_container {
+  display: flex;
+  flex-direction: column;
+  row-gap: 25px;
+  align-items: center;
+}
+
+.cart_card {
+  display: flex;
+  height: 150px;
+  justify-content: space-evenly;
+  width: 100%;
+  max-width: 650px;
+}
+
+.cart_card_img {
+  height: 100%;
+  width: auto;
+}
+
+.cart_text_container {
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 15px;
+  justify-content: center;
+}
+
+.cart_product_name {
+  font-weight: 700;
+}
+
+.empty_cart_header {
+  margin: 120px auto;
 }

@@ -1,6 +1,7 @@
 const login = document.querySelector('#login');
 const logout = document.querySelector('#logout');
 const myOrders = document.querySelector('#myOrders');
+const toCart = document.querySelector('#toCart');
 const loginContainer = document.querySelector('#loginContainer');
 const mainContainer = document.querySelector('#mainContainer');
 const headerLogo = document.querySelector('#headerLogo');
@@ -13,6 +14,7 @@ let productStockStatus =
 
 login.addEventListener('click', printLoginForm);
 logout.addEventListener('click', logoutUser);
+toCart.addEventListener('click', printCartProducts);
 headerLogo.addEventListener('click', printOptions);
 
 /**
@@ -107,12 +109,14 @@ function printLogoutBtn() {
   login.classList.add('hidden');
   logout.classList.remove('hidden');
   myOrders.classList.remove('hidden');
+  toCart.classList.remove('hidden');
 }
 
 function printLoginBtn() {
   login.classList.remove('hidden');
   logout.classList.add('hidden');
   myOrders.classList.add('hidden');
+  toCart.classList.add('hidden');
 }
 
 function needToLogin() {
@@ -435,6 +439,108 @@ function updateStockStatus(product, currentQuantity) {
     'productStockStatus',
     JSON.stringify(productStockStatus)
   );
+}
+
+/**
+ * -----------------------------
+ * ------ CART FUNCTIONS -------
+ * -----------------------------
+ */
+
+function printCartProducts() {
+  const products = JSON.parse(localStorage.getItem('products')) || [];
+  mainContainer.innerHTML = '';
+
+  if (products.length === 0) {
+    printEmptyCart();
+    return;
+  }
+
+  const cartHeader = document.createElement('h2');
+  cartHeader.innerText = 'Cart';
+
+  const ul = document.createElement('ul');
+  ul.classList.add('cart_container');
+
+  products.forEach((cartItem) => {
+    fetch(`http://localhost:3000/api/products/${cartItem.productId}`)
+      .then((res) => res.json())
+      .then((product) => {
+        const li = document.createElement('li');
+        li.classList.add('cart_card');
+
+        const placeholderImg = document.createElement('img');
+        placeholderImg.src = 'src/img/placeholder.webp';
+        placeholderImg.alt = 'Placeholder img';
+        placeholderImg.width = '768';
+        placeholderImg.height = '1024';
+        placeholderImg.classList.add('cart_card_img');
+
+        const cartTextContainer = document.createElement('div');
+        cartTextContainer.classList.add('cart_text_container');
+
+        const productName = document.createElement('span');
+        productName.innerText = product.name;
+        productName.classList.add('cart_product_name');
+
+        const cartAmount = document.createElement('span');
+        cartAmount.innerText = `Amount: ${cartItem.quantity}`;
+
+        cartTextContainer.append(productName, cartAmount);
+        li.append(placeholderImg, cartTextContainer);
+        ul.appendChild(li);
+        mainContainer.append(cartHeader, ul);
+      })
+      .catch((error) => {
+        console.error('Error trying to fetch product:', error);
+      });
+  });
+}
+
+function printEmptyCart() {
+  mainContainer.innerHTML = '';
+
+  const cartEmptyHeader = document.createElement('h2');
+  cartEmptyHeader.innerText = 'Your cart is empty';
+  cartEmptyHeader.classList.add('empty_cart_header');
+
+  const viewAllBtn = createBtn(
+    'View all products',
+    'view_all_btn',
+    printAllProducts
+  );
+  const byCategoryHeader = document.createElement('h2');
+  byCategoryHeader.innerText = 'Or view by categories:';
+  byCategoryHeader.classList.add('category_header');
+  const categoryBtnContainer = document.createElement('div');
+  categoryBtnContainer.classList.add('category_container');
+
+  viewAllBtn.addEventListener('click', printAllProducts);
+
+  mainContainer.append(
+    cartEmptyHeader,
+    viewAllBtn,
+    byCategoryHeader,
+    categoryBtnContainer
+  );
+
+  fetch('http://localhost:3000/api/categories')
+    .then((res) => res.json())
+    .then((categories) => {
+      categories.forEach((category) => {
+        const categoryBtn = createBtn(
+          category.name,
+          'category_btn',
+          function () {
+            printProductsByCategory(category._id, category.name);
+          }
+        );
+        categoryBtnContainer.appendChild(categoryBtn);
+      });
+    })
+    .catch((error) => {
+      console.error('Error trying to fetch categories:', error);
+    });
 }
 
 /**
