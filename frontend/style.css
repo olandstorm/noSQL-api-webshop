@@ -310,9 +310,11 @@ footer {
 .cart_card {
   display: flex;
   height: 150px;
-  justify-content: space-evenly;
-  width: 100%;
+  justify-content: space-between;
+  column-gap: 40px;
   max-width: 650px;
+  border: 1.5px solid #025e8974;
+  padding: 10px;
 }
 
 .cart_card_img {
@@ -321,7 +323,7 @@ footer {
 }
 
 .cart_text_container {
-  min-width: 200px;
+  min-width: 250px;
   display: flex;
   flex-direction: column;
   row-gap: 15px;
