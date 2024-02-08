@@ -8,6 +8,8 @@ const headerLogo = document.querySelector('#headerLogo');
 let newUserName;
 let newUserEmail;
 let newUserPassword;
+let productStockStatus =
+  JSON.parse(localStorage.getItem('productStockStatus')) || {};
 
 login.addEventListener('click', printLoginForm);
 logout.addEventListener('click', logoutUser);
@@ -299,27 +301,25 @@ function createProductCard(product) {
   amountContainer.classList.add('amount_container');
 
   const decreaseBtn = createBtn('-', 'decrease_btn', function () {
-    decreaseQuantity(product);
+    decreaseQuantity(quantityDisplay);
   });
   const quantityDisplay = document.createElement('span');
   quantityDisplay.innerText = '0';
   quantityDisplay.classList.add('quantity_display');
   const increaseBtn = createBtn('+', 'increase_btn', function () {
-    increaseQuantity(product);
-  });
-
-  decreaseBtn.addEventListener('click', function () {
-    decreaseQuantity(product);
-  });
-  increaseBtn.addEventListener('click', function () {
-    increaseQuantity(product);
+    increaseQuantity(product, quantityDisplay);
   });
 
   amountContainer.append(decreaseBtn, quantityDisplay, increaseBtn);
 
   const addToCartBtn = createBtn('Add to cart', 'add_to_cart_btn', function () {
-    addToCartBtn(product);
+    addToCart(product, quantityDisplay, addToCartBtn);
   });
+
+  if (product.lager === 0 || productStockStatus[product._id] === 0) {
+    addToCartBtn.disabled = true;
+    addToCartBtn.innerText = 'Out of stock';
+  }
 
   li.append(
     productName,
@@ -330,6 +330,81 @@ function createProductCard(product) {
   );
 
   return li;
+}
+
+function decreaseQuantity(quantityDisplay) {
+  let currentQuantity = parseInt(quantityDisplay.innerText);
+  if (currentQuantity > 0) {
+    currentQuantity--;
+    quantityDisplay.innerText = currentQuantity.toString();
+  }
+}
+
+function increaseQuantity(product, quantityDisplay) {
+  let currentQuantity = parseInt(quantityDisplay.innerText);
+  if (
+    currentQuantity < product.lager &&
+    (productStockStatus[product._id] === undefined ||
+      currentQuantity < productStockStatus[product._id])
+  ) {
+    currentQuantity++;
+    quantityDisplay.innerText = currentQuantity.toString();
+  }
+}
+
+function addToCart(product, quantityDisplay, addToCartBtn) {
+  let currentQuantity = parseInt(quantityDisplay.innerText);
+  if (currentQuantity > 0) {
+    const cartItem = {
+      productId: product._id,
+      quantity: currentQuantity,
+    };
+
+    let products = JSON.parse(localStorage.getItem('products')) || [];
+
+    const checkIfItemExists = products.findIndex(
+      (item) => item.productId === product._id
+    );
+
+    if (checkIfItemExists !== -1) {
+      products[checkIfItemExists].quantity += currentQuantity;
+    } else {
+      products.push(cartItem);
+    }
+
+    localStorage.setItem('products', JSON.stringify(products));
+    updateStockStatus(product, currentQuantity);
+    updateAddToCartBtn(product, addToCartBtn);
+    quantityDisplay.innerText = '0';
+  } else {
+    alert('Please change amount before adding to cart!');
+  }
+}
+
+function updateAddToCartBtn(product, addToCartBtn) {
+  if (
+    productStockStatus[product._id] === undefined ||
+    productStockStatus[product._id] > 0
+  ) {
+    addToCartBtn.disabled = false;
+    addToCartBtn.innerText = 'Add to cart';
+  } else {
+    addToCartBtn.disabled = true;
+    addToCartBtn.innerText = 'Out of stock';
+  }
+}
+
+function updateStockStatus(product, currentQuantity) {
+  if (productStockStatus.hasOwnProperty(product._id)) {
+    productStockStatus[product._id] -= currentQuantity;
+  } else {
+    productStockStatus[product._id] = product.lager - currentQuantity;
+  }
+  console.log(productStockStatus);
+  localStorage.setItem(
+    'productStockStatus',
+    JSON.stringify(productStockStatus)
+  );
 }
 
 /**
