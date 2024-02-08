@@ -265,7 +265,8 @@ footer {
 
 .increase_btn,
 .decrease_btn,
-.add_to_cart_btn {
+.add_to_cart_btn,
+.place_order_btn {
   border: 1.5px solid #242424;
   border-radius: 3px;
   cursor: pointer;
@@ -277,13 +278,15 @@ footer {
 
 .increase_btn:hover,
 .decrease_btn:hover,
-.add_to_cart_btn:hover {
+.add_to_cart_btn:hover,
+.place_order_btn:hover {
   background-color: #03719657;
 }
 
 .increase_btn:active,
 .decrease_btn:active,
-.add_to_cart_btn:active {
+.add_to_cart_btn:active,
+.place_order_btn:active {
   background-color: #037196;
 }
 
@@ -332,6 +335,13 @@ footer {
 
 .cart_product_name {
   font-weight: 700;
+}
+
+.place_order_btn {
+  width: fit-content;
+  margin: auto;
+  padding: 5px 10px;
+  text-transform: uppercase;
 }
 
 .empty_cart_header {

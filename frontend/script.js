@@ -462,6 +462,8 @@ function printCartProducts() {
   const ul = document.createElement('ul');
   ul.classList.add('cart_container');
 
+  const placeOrderBtn = createBtn('Place order', 'place_order_btn', placeOrder);
+
   products.forEach((cartItem) => {
     fetch(`http://localhost:3000/api/products/${cartItem.productId}`)
       .then((res) => res.json())
@@ -489,7 +491,7 @@ function printCartProducts() {
         cartTextContainer.append(productName, cartAmount);
         li.append(placeholderImg, cartTextContainer);
         ul.appendChild(li);
-        mainContainer.append(cartHeader, ul);
+        mainContainer.append(cartHeader, ul, placeOrderBtn);
       })
       .catch((error) => {
         console.error('Error trying to fetch product:', error);
@@ -541,6 +543,10 @@ function printEmptyCart() {
     .catch((error) => {
       console.error('Error trying to fetch categories:', error);
     });
+}
+
+function placeOrder() {
+  console.log('placing order');
 }
 
 /**
