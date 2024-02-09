@@ -686,7 +686,7 @@ async function createOrderItem(order, index) {
   const orderHeader = createH2(`Order nr. ${orderNumber}`);
 
   const productContainer = document.createElement('ul');
-  productContainer.classList.add('product_container');
+  productContainer.classList.add('order_product_container');
 
   for (const orderProduct of order.products) {
     const productDetails = await fetchProductDetails(orderProduct.productId);
@@ -695,7 +695,7 @@ async function createOrderItem(order, index) {
       productCard.classList.add('order_product_card');
 
       const productName = createSpan(
-        `Name: ${productDetails.name}`,
+        `${productDetails.name}`,
         'order_product_name'
       );
       const productAmount = createSpan(
@@ -703,7 +703,7 @@ async function createOrderItem(order, index) {
         'order_product_amount'
       );
       const productPrice = createSpan(
-        `Price: ${productDetails.price}`,
+        `Price per item: ${productDetails.price}`,
         'order_product_price'
       );
 
