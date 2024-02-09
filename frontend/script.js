@@ -289,6 +289,7 @@ function createProductCard(product) {
       addToCartBtn
     );
   });
+  addToCartBtn.classList.add('white_blue_btn');
 
   updateAddToCartBtn(product, addToCartBtn);
 
@@ -403,6 +404,7 @@ function printCartProducts() {
   const ul = document.createElement('ul');
   ul.classList.add('cart_container');
   const placeOrderBtn = createBtn('Place order', 'place_order_btn', placeOrder);
+  placeOrderBtn.classList.add('white_blue_btn');
 
   products.forEach((cartItem) => {
     fetch(`http://localhost:3000/api/products/${cartItem.productId}`)
@@ -609,7 +611,7 @@ function createAmountContainer(product) {
   const amountContainer = document.createElement('div');
   amountContainer.classList.add('amount_container');
 
-  const decreaseBtn = createBtn('-', 'decrease_btn', function () {
+  const decreaseBtn = createBtn('-', 'white_blue_btn', function () {
     decreaseQuantity(quantityDisplay);
   });
 
@@ -617,7 +619,7 @@ function createAmountContainer(product) {
   quantityDisplay.innerText = '0';
   quantityDisplay.classList.add('quantity_display');
 
-  const increaseBtn = createBtn('+', 'increase_btn', function () {
+  const increaseBtn = createBtn('+', 'white_blue_btn', function () {
     increaseQuantity(product, quantityDisplay);
   });
 

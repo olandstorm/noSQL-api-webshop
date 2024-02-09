@@ -263,10 +263,7 @@ footer {
   font-size: 0.9rem;
 }
 
-.increase_btn,
-.decrease_btn,
-.add_to_cart_btn,
-.place_order_btn {
+.white_blue_btn {
   border: 1.5px solid #242424;
   border-radius: 3px;
   cursor: pointer;
@@ -276,17 +273,11 @@ footer {
   margin-bottom: 0;
 }
 
-.increase_btn:hover,
-.decrease_btn:hover,
-.add_to_cart_btn:hover,
-.place_order_btn:hover {
+.white_blue_btn:hover {
   background-color: #03719657;
 }
 
-.increase_btn:active,
-.decrease_btn:active,
-.add_to_cart_btn:active,
-.place_order_btn:active {
+.white_blue_btn:active {
   background-color: #037196;
 }
 
