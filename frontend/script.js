@@ -14,6 +14,7 @@ let productStockStatus =
 
 login.addEventListener('click', printLoginForm);
 logout.addEventListener('click', logoutUser);
+myOrders.addEventListener('click', printOrders);
 toCart.addEventListener('click', printCartProducts);
 headerLogo.addEventListener('click', printOptions);
 
@@ -468,6 +469,12 @@ function printEmptyCart() {
     });
 }
 
+/**
+ * -----------------------------
+ * ------ ORDER FUNCTIONS ------
+ * -----------------------------
+ */
+
 function placeOrder() {
   console.log('placing order');
   const user = localStorage.getItem('user');
@@ -518,6 +525,68 @@ function placeOrder() {
       // TODO: CHANGE THIS LATER
       alert('Failed to place order.');
     });
+}
+
+function printOrders() {
+  const user = localStorage.getItem('user');
+  const token = localStorage.getItem('key');
+
+  if (!user || !token) {
+    // TODO: CHANGE THIS LATER
+    alert('Please log in to view your orders!');
+    return;
+  }
+
+  const userRequest = {
+    user: user,
+    token: token,
+  };
+
+  fetch('http://localhost:3000/api/orders/user', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(userRequest),
+  })
+    .then((res) => {
+      if (res.ok) {
+        return res.json();
+      } else {
+        return res.json().then((data) => {
+          throw new Error(data.message || 'Failed to get orders');
+        });
+      }
+    })
+    .then((orders) => {
+      if (orders.length === 0) {
+        // TODO: CHANGE THIS LATER
+        alert('No orders made!');
+        return;
+      }
+      displayOrders(orders);
+    })
+    .catch((error) => {
+      console.error('Error fetching orders:', error);
+      // TODO: CHANGE THIS LATER
+      alert('Failed to fetch orders!');
+    });
+}
+
+async function displayOrders(orders) {
+  mainContainer.innerHTML = '';
+
+  const ordersHeader = createH2('Your orders');
+  const ordersContainer = document.createElement('ul');
+  ordersContainer.classList.add('orders_container');
+
+  for (let i = 0; i < orders.length; i++) {
+    const order = orders[i];
+    const orderItem = await createOrderItem(order, i);
+    ordersContainer.appendChild(orderItem);
+  }
+
+  mainContainer.append(ordersHeader, ordersContainer);
 }
 
 /**
@@ -607,4 +676,57 @@ function createCartTextContainer(product, quantity) {
   cartTextContainer.append(productName, cartAmount);
 
   return cartTextContainer;
+}
+
+async function createOrderItem(order, index) {
+  const orderItem = document.createElement('li');
+  orderItem.classList.add('order_item');
+
+  const orderNumber = index + 1;
+  const orderHeader = createH2(`Order nr. ${orderNumber}`);
+
+  const productContainer = document.createElement('ul');
+  productContainer.classList.add('product_container');
+
+  for (const orderProduct of order.products) {
+    const productDetails = await fetchProductDetails(orderProduct.productId);
+    if (productDetails) {
+      const productCard = document.createElement('li');
+      productCard.classList.add('order_product_card');
+
+      const productName = createSpan(
+        `Name: ${productDetails.name}`,
+        'order_product_name'
+      );
+      const productAmount = createSpan(
+        `Amount: ${orderProduct.quantity}`,
+        'order_product_amount'
+      );
+      const productPrice = createSpan(
+        `Price: ${productDetails.price}`,
+        'order_product_price'
+      );
+
+      productCard.append(productName, productAmount, productPrice);
+      productContainer.appendChild(productCard);
+    }
+  }
+
+  orderItem.append(orderHeader, productContainer);
+
+  return orderItem;
+}
+
+async function fetchProductDetails(productId) {
+  try {
+    const res = await fetch(`http://localhost:3000/api/products/${productId}`);
+    if (!res.ok) {
+      throw new Error('Failed to fetch product info');
+    }
+    const product = await res.json();
+    return product;
+  } catch (error) {
+    console.error('Error fetching product details:', error);
+    return null;
+  }
 }
