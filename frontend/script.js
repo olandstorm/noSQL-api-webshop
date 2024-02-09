@@ -209,14 +209,26 @@ function printOptions() {
     .then((res) => res.json())
     .then((categories) => {
       categories.forEach((category) => {
-        const categoryBtn = createBtn(
-          category.name,
-          'category_btn',
-          function () {
-            printProductsByCategory(category._id, category.name);
-          }
-        );
-        categoryBtnContainer.appendChild(categoryBtn);
+        fetch(`http://localhost:3000/api/products/category/${category._id}`)
+          .then((res) => res.json())
+          .then((products) => {
+            if (products.length > 0) {
+              const categoryBtn = createBtn(
+                category.name,
+                'category_btn',
+                function () {
+                  printProductsByCategory(category._id, category.name);
+                }
+              );
+              categoryBtnContainer.appendChild(categoryBtn);
+            }
+          })
+          .catch((error) => {
+            console.error(
+              'Error trying to fetch the products of the category:',
+              error
+            );
+          });
       });
     })
     .catch((error) => {
