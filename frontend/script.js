@@ -366,8 +366,7 @@ function addToCart(product, quantityDisplay, addToCartBtn) {
     updateAddToCartBtn(product, addToCartBtn);
     quantityDisplay.innerText = '0';
   } else {
-    // TODO: CHANGE THIS LATER
-    alert('Please change amount before adding to cart!');
+    createPopup('Please change amount before adding to cart!');
   }
 }
 
@@ -495,14 +494,12 @@ function placeOrder() {
   const products = JSON.parse(localStorage.getItem('products')) || [];
 
   if (!user) {
-    // TODO: CHANGE THIS LATER
-    alert('Please log in to place an order!');
+    createPopup('Please log in to place an order!');
     return;
   }
 
   if (products.length === 0) {
-    // TODO: CHANGE THIS LATER
-    alert('Empty cart!');
+    createPopup('Your cart is empty!');
     return;
   }
 
@@ -528,16 +525,14 @@ function placeOrder() {
         productStockStatus =
           JSON.parse(localStorage.getItem('productStockStatus')) || {};
         printEmptyCart();
-        // TODO: CHANGE THIS LATER
-        alert('Order made!');
+        createPopup('Order made!');
       } else {
         console.error('Failed to place order.');
       }
     })
     .catch((error) => {
       console.error('Error placing order:', error);
-      // TODO: CHANGE THIS LATER
-      alert('Failed to place order.');
+      createPopup('Failed to place order.');
     });
 }
 
@@ -546,8 +541,7 @@ function printOrders() {
   const token = localStorage.getItem('key');
 
   if (!user || !token) {
-    // TODO: CHANGE THIS LATER
-    alert('Please log in to view your orders!');
+    createPopup('Please log in to view your orders!');
     return;
   }
 
@@ -574,16 +568,14 @@ function printOrders() {
     })
     .then((orders) => {
       if (orders.length === 0) {
-        // TODO: CHANGE THIS LATER
-        alert('No orders made!');
+        createPopup('No orders has been made!');
         return;
       }
       displayOrders(orders);
     })
     .catch((error) => {
       console.error('Error fetching orders:', error);
-      // TODO: CHANGE THIS LATER
-      alert('Failed to fetch orders!');
+      createPopup('Failed to fetch orders!');
     });
 }
 
@@ -743,4 +735,18 @@ async function fetchProductDetails(productId) {
     console.error('Error fetching product details:', error);
     return null;
   }
+}
+
+function createPopup(message) {
+  const popupContainer = document.createElement('div');
+  popupContainer.classList.add('popup_container');
+
+  const popupMessage = createSpan(message, 'popup_message');
+
+  const closeBtn = createBtn('Close', 'white_blue_btn', () => {
+    document.body.removeChild(popupContainer);
+  });
+
+  popupContainer.append(popupMessage, closeBtn);
+  document.body.appendChild(popupContainer);
 }
