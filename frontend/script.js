@@ -467,14 +467,26 @@ function printEmptyCart() {
     .then((res) => res.json())
     .then((categories) => {
       categories.forEach((category) => {
-        const categoryBtn = createBtn(
-          category.name,
-          'category_btn',
-          function () {
-            printProductsByCategory(category._id, category.name);
-          }
-        );
-        categoryBtnContainer.appendChild(categoryBtn);
+        fetch(`http://localhost:3000/api/products/category/${category._id}`)
+          .then((res) => res.json())
+          .then((products) => {
+            if (products.length > 0) {
+              const categoryBtn = createBtn(
+                category.name,
+                'category_btn',
+                function () {
+                  printProductsByCategory(category._id, category.name);
+                }
+              );
+              categoryBtnContainer.appendChild(categoryBtn);
+            }
+          })
+          .catch((error) => {
+            console.error(
+              'Error trying to fetch the products of the category:',
+              error
+            );
+          });
       });
     })
     .catch((error) => {
@@ -518,7 +530,8 @@ function placeOrder() {
     },
     body: JSON.stringify(order),
   })
-    .then((res) => {
+    .then(async (res) => {
+      const responseData = await res.json();
       if (res.ok) {
         localStorage.removeItem('products');
         localStorage.removeItem('productStockStatus');
@@ -527,7 +540,9 @@ function placeOrder() {
         printEmptyCart();
         createPopup('Order made!');
       } else {
-        console.error('Failed to place order.');
+        const errorMessage = responseData.error || 'Failed to place order';
+        createPopup(errorMessage);
+        console.error('Failed to place order:', errorMessage);
       }
     })
     .catch((error) => {
