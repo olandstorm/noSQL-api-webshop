@@ -1,3 +1,9 @@
+/*
+----------------------
+------- RESET --------
+----------------------
+*/
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -102,6 +108,12 @@ h2 {
   font-weight: 400;
 }
 
+/*
+----------------------
+--- HEADER STYLING ---
+----------------------
+*/
+
 header {
   display: flex;
   flex-direction: column;
@@ -141,6 +153,12 @@ footer {
   height: 100px;
 }
 
+/*
+----------------------
+--- POPUP STYLING ----
+----------------------
+*/
+
 .popup_container {
   position: fixed;
   top: 50%;
@@ -176,6 +194,23 @@ footer {
   border: none;
   color: #c72505;
 }
+
+.popup_container .white_blue_btn {
+  width: fit-content;
+  margin: auto;
+  padding: 5px 7px;
+  text-transform: uppercase;
+}
+
+.popup_message {
+  margin: 0px auto 15px;
+}
+
+/*
+----------------------
+---- MAIN STYLING ----
+----------------------
+*/
 
 .main_container {
   display: flex;
@@ -224,6 +259,12 @@ footer {
 .category_btn:active {
   background-color: #037196;
 }
+
+/*
+----------------------
+-- PRODUCTS STYLING --
+----------------------
+*/
 
 .all_products_container {
   display: flex;
@@ -290,6 +331,12 @@ footer {
   height: 55%;
   opacity: 0.7;
 }
+
+/*
+----------------------
+---- CART STYLING ----
+----------------------
+*/
 
 .cart_container {
   display: flex;
@@ -362,6 +409,12 @@ footer {
   margin: 120px auto;
 }
 
+/*
+----------------------
+--- ORDERS STYLING ---
+----------------------
+*/
+
 .orders_container {
   display: flex;
   flex-direction: column;
@@ -402,15 +455,4 @@ footer {
   margin-top: 10px;
   text-align: right;
   margin-right: 20px;
-}
-
-.popup_container .white_blue_btn {
-  width: fit-content;
-  margin: auto;
-  padding: 5px 7px;
-  text-transform: uppercase;
-}
-
-.popup_message {
-  margin: 0px auto 15px;
 }
