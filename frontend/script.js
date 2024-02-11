@@ -414,8 +414,11 @@ function printCartProducts() {
   const cartHeader = createH2('Cart');
   const ul = document.createElement('ul');
   ul.classList.add('cart_container');
+  const cartTotalPrice = createSpan('Total: $', 'cart_total_price');
   const placeOrderBtn = createBtn('Place order', 'place_order_btn', placeOrder);
   placeOrderBtn.classList.add('white_blue_btn');
+
+  let cartTotal = 0;
 
   products.forEach((cartItem) => {
     fetch(`http://localhost:3000/api/products/${cartItem.productId}`)
@@ -429,12 +432,18 @@ function printCartProducts() {
 
         li.append(placeholderImg, cartTextContainer);
         ul.appendChild(li);
-        mainContainer.append(cartHeader, ul, placeOrderBtn);
+
+        const totalPriceForItem = product.price * cartItem.quantity;
+        cartTotal += totalPriceForItem;
+        cartTotalPrice.textContent = `Total: $${cartTotal}`;
+
+        mainContainer.append(cartHeader, ul, cartTotalPrice, placeOrderBtn);
       })
       .catch((error) => {
         console.error('Error trying to fetch product:', error);
       });
   });
+  updateCartTotalPrice();
 }
 
 function printEmptyCart() {
@@ -500,7 +509,7 @@ function removeFromCart(productId) {
   printCartProducts();
 }
 
-function decreaseCartQuantity(productId) {
+function decreaseCartQuantity(product, productId) {
   let products = JSON.parse(localStorage.getItem('products')) || [];
   const index = products.findIndex((item) => item.productId === productId);
   if (index !== -1 && products[index].quantity > 1) {
@@ -508,7 +517,8 @@ function decreaseCartQuantity(productId) {
     const removedQuantity = -1;
     updateStockStatusOnAdjust(products[index], removedQuantity);
     localStorage.setItem('products', JSON.stringify(products));
-    updateCartProductQuantity(productId, products[index].quantity);
+    updateCartProductQuantity(product, productId, products[index].quantity);
+    updateCartTotalPrice();
   }
 }
 
@@ -520,18 +530,24 @@ function increaseCartQuantity(product, productId) {
     const addedQuantity = 1;
     updateStockStatusOnAdjust(products[index], addedQuantity);
     localStorage.setItem('products', JSON.stringify(products));
-    updateCartProductQuantity(productId, products[index].quantity);
+    updateCartProductQuantity(product, productId, products[index].quantity);
+    updateCartTotalPrice();
   }
 }
 
-function updateCartProductQuantity(productId, quantity) {
+function updateCartProductQuantity(product, productId, quantity) {
   const cartItems = document.querySelectorAll('.cart_text_container');
   cartItems.forEach((item) => {
     const id = item.getAttribute('data-product-id');
     if (id === productId) {
       const amountSpan = item.querySelector('.cart_amount');
       if (amountSpan) {
-        amountSpan.innerText = `Amount: ${quantity}`;
+        amountSpan.innerText = `${quantity}`;
+      }
+      const totalPriceSpan = item.querySelector('.total_price_span');
+      if (totalPriceSpan) {
+        const totalPrice = product.price * quantity;
+        totalPriceSpan.innerText = `$${totalPrice}`;
       }
     }
   });
@@ -558,6 +574,28 @@ function updateStockStatusOnRemove(removedItem) {
     JSON.stringify(productStockStatus)
   );
 }
+
+function updateCartTotalPrice() {
+  const products = JSON.parse(localStorage.getItem('products')) || [];
+  let cartTotal = 0;
+  products.forEach((cartItem) => {
+    fetch(`http://localhost:3000/api/products/${cartItem.productId}`)
+      .then((res) => res.json())
+      .then((product) => {
+        const totalPriceForItem = product.price * cartItem.quantity;
+        cartTotal += totalPriceForItem;
+        const cartTotalPrice = document.querySelector('.cart_total_price');
+        if (cartTotalPrice) {
+          cartTotalPrice.innerText = `Total: $${cartTotal}`;
+        }
+      })
+      .catch((error) => {
+        console.error('Error trying to fetch product:', error);
+      });
+  });
+}
+
+updateCartTotalPrice();
 
 /**
  * -----------------------------
@@ -756,33 +794,33 @@ function createCartTextContainer(product, cartItem) {
   const cartTextContainer = document.createElement('div');
   cartTextContainer.classList.add('cart_text_container');
   cartTextContainer.dataset.productId = product._id;
+  const cartAmountContainer = document.createElement('div');
+  cartAmountContainer.classList.add('cart_amount_container');
 
   const productName = createSpan(product.name, 'cart_product_name');
-  const cartAmount = createSpan(`Amount: ${cartItem.quantity}`, 'cart_amount');
+  const cartAmount = createSpan(`${cartItem.quantity}`, 'cart_amount');
 
-  const removeBtn = createBtn('Remove', 'remove_btn', () => {
+  const removeBtn = createBtn('Remove', 'white_blue_btn', () => {
     removeFromCart(product._id);
   });
+  removeBtn.classList.add('remove_cart_btn');
 
-  const decreaseBtn = createBtn('-', 'decrease_cart_btn', () => {
-    decreaseCartQuantity(product._id);
+  const decreaseBtn = createBtn('-', 'white_blue_btn', () => {
+    decreaseCartQuantity(product, product._id);
   });
 
-  const increaseBtn = createBtn('+', 'increase_cart_btn', () => {
+  const increaseBtn = createBtn('+', 'white_blue_btn', () => {
     increaseCartQuantity(product, product._id);
   });
 
   const totalPrice = product.price * cartItem.quantity;
-  const totalPriceSpan = createSpan(
-    `Total amount: ${totalPrice}`,
-    'total_price_span'
-  );
+  const totalPriceSpan = createSpan(`$${totalPrice}`, 'total_price_span');
+
+  cartAmountContainer.append(decreaseBtn, cartAmount, increaseBtn);
 
   cartTextContainer.append(
     productName,
-    decreaseBtn,
-    cartAmount,
-    increaseBtn,
+    cartAmountContainer,
     totalPriceSpan,
     removeBtn
   );
@@ -800,6 +838,8 @@ async function createOrderItem(order, index) {
   const productContainer = document.createElement('ul');
   productContainer.classList.add('order_product_container');
 
+  let totalOrderPrice = 0;
+
   for (const orderProduct of order.products) {
     const productDetails = await fetchProductDetails(orderProduct.productId);
     if (productDetails) {
@@ -814,17 +854,22 @@ async function createOrderItem(order, index) {
         `Amount: ${orderProduct.quantity}`,
         'order_product_amount'
       );
-      const productPrice = createSpan(
-        `Price per item: ${productDetails.price}`,
-        'order_product_price'
-      );
+      const itemTotal = orderProduct.quantity * productDetails.price;
+      const productPrice = createSpan(`$${itemTotal}`, 'order_product_price');
 
       productCard.append(productName, productAmount, productPrice);
       productContainer.appendChild(productCard);
+
+      totalOrderPrice += itemTotal;
     }
   }
 
-  orderItem.append(orderHeader, productContainer);
+  const orderTotalPrice = createSpan(
+    `Total: $${totalOrderPrice}`,
+    'order_total_price'
+  );
+
+  orderItem.append(orderHeader, productContainer, orderTotalPrice);
 
   return orderItem;
 }
