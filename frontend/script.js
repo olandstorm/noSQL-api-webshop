@@ -425,10 +425,7 @@ function printCartProducts() {
         li.classList.add('cart_card');
 
         const placeholderImg = createPlaceholderImg('cart_card_img');
-        const cartTextContainer = createCartTextContainer(
-          product,
-          cartItem.quantity
-        );
+        const cartTextContainer = createCartTextContainer(product, cartItem);
 
         li.append(placeholderImg, cartTextContainer);
         ul.appendChild(li);
@@ -492,6 +489,74 @@ function printEmptyCart() {
     .catch((error) => {
       console.error('Error trying to fetch categories:', error);
     });
+}
+
+function removeFromCart(productId) {
+  let products = JSON.parse(localStorage.getItem('products')) || [];
+  const removedItem = products.find((item) => item.productId === productId);
+  products = products.filter((item) => item.productId !== productId);
+  localStorage.setItem('products', JSON.stringify(products));
+  updateStockStatusOnRemove(removedItem);
+  printCartProducts();
+}
+
+function decreaseCartQuantity(productId) {
+  let products = JSON.parse(localStorage.getItem('products')) || [];
+  const index = products.findIndex((item) => item.productId === productId);
+  if (index !== -1 && products[index].quantity > 1) {
+    products[index].quantity--;
+    const removedQuantity = -1;
+    updateStockStatusOnAdjust(products[index], removedQuantity);
+    localStorage.setItem('products', JSON.stringify(products));
+    updateCartProductQuantity(productId, products[index].quantity);
+  }
+}
+
+function increaseCartQuantity(product, productId) {
+  let products = JSON.parse(localStorage.getItem('products')) || [];
+  const index = products.findIndex((item) => item.productId === productId);
+  if (index !== -1 && products[index].quantity < product.lager) {
+    products[index].quantity++;
+    const addedQuantity = 1;
+    updateStockStatusOnAdjust(products[index], addedQuantity);
+    localStorage.setItem('products', JSON.stringify(products));
+    updateCartProductQuantity(productId, products[index].quantity);
+  }
+}
+
+function updateCartProductQuantity(productId, quantity) {
+  const cartItems = document.querySelectorAll('.cart_text_container');
+  cartItems.forEach((item) => {
+    const id = item.getAttribute('data-product-id');
+    if (id === productId) {
+      const amountSpan = item.querySelector('.cart_amount');
+      if (amountSpan) {
+        amountSpan.innerText = `Amount: ${quantity}`;
+      }
+    }
+  });
+}
+
+function updateStockStatusOnAdjust(updatedItem, quantityChange) {
+  const productId = updatedItem.productId;
+  if (productStockStatus.hasOwnProperty(productId)) {
+    productStockStatus[productId] -= quantityChange;
+  } else {
+    productStockStatus[productId] = updatedItem.lager - quantityChange;
+  }
+  localStorage.setItem(
+    'productStockStatus',
+    JSON.stringify(productStockStatus)
+  );
+}
+
+function updateStockStatusOnRemove(removedItem) {
+  const productId = removedItem.productId;
+  delete productStockStatus[productId];
+  localStorage.setItem(
+    'productStockStatus',
+    JSON.stringify(productStockStatus)
+  );
 }
 
 /**
@@ -687,14 +752,40 @@ function createCloseButton() {
   return closeLoginBtn;
 }
 
-function createCartTextContainer(product, quantity) {
+function createCartTextContainer(product, cartItem) {
   const cartTextContainer = document.createElement('div');
   cartTextContainer.classList.add('cart_text_container');
+  cartTextContainer.dataset.productId = product._id;
 
   const productName = createSpan(product.name, 'cart_product_name');
-  const cartAmount = createSpan(`Amount: ${quantity}`, 'cart_amount');
+  const cartAmount = createSpan(`Amount: ${cartItem.quantity}`, 'cart_amount');
 
-  cartTextContainer.append(productName, cartAmount);
+  const removeBtn = createBtn('Remove', 'remove_btn', () => {
+    removeFromCart(product._id);
+  });
+
+  const decreaseBtn = createBtn('-', 'decrease_cart_btn', () => {
+    decreaseCartQuantity(product._id);
+  });
+
+  const increaseBtn = createBtn('+', 'increase_cart_btn', () => {
+    increaseCartQuantity(product, product._id);
+  });
+
+  const totalPrice = product.price * cartItem.quantity;
+  const totalPriceSpan = createSpan(
+    `Total amount: ${totalPrice}`,
+    'total_price_span'
+  );
+
+  cartTextContainer.append(
+    productName,
+    decreaseBtn,
+    cartAmount,
+    increaseBtn,
+    totalPriceSpan,
+    removeBtn
+  );
 
   return cartTextContainer;
 }
