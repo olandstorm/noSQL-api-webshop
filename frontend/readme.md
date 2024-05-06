@@ -1,2 +1,1 @@
-Placera din frontend-kod i denna mapp.
-Dokumentera tydligt om det är några speciella instruktioner för att starta projektet.
+This front end application can be ran just by starting a local host.

@@ -1,46 +1,39 @@
-# Du har fått i uppdrag att utveckla API’et till en webbshop.
+# WebMart Junction
 
-En lösningsarkitekt har redan dokumenterat vilka endpoints som skall finnas för API’et samt skrivit ett test flöde med REST-Client som ni kan börja utveckal med. Dvs vilka endpoints och vad de skall heta samt vad de förväntas returnera är redan förutbestämt.
+WebMart Junction is your generic store. It could hold... almost anything. Is it a book store? Is it a food store? Depending on your database, you're the one to decide!
 
-För att testerna skall fungera behöver ni Rest-Client (extension) installerat till vsc.
+## Assignment
 
-För G krav så räcker det att de endpoints markerade med G fungerar.
+Here we have been tasked with developing the API for an e-commerce website. A solution architect has already documented the required endpoints and provided a test flow using REST-Client to kickstart development. We utilized MongoDB as our platform to grasp the fundamentals of NoSQL, focusing on creating, reading, updating, and deleting (CRUD) operations.
 
-För VG behöver även de endpoints markerade med VG fungera. För VG så skall även en frontend klient för projektet skapas där minst endpointsen för G kraven används (se nedan för en lista av vilka krav som specifieras för klienten). 
-Dvs, för betyget G behöver ingen frontend skapas.
+## Built with
 
-Projektet ni klonar har förutom test-rest filerna förberett även en mapp för backend, där ni kan installera express på valfritt sätt. Samt en mapp för frontend där ni kan skapa er frontend klient på valfritt sätt.
+#### Front end:
 
-All data skall sparas i en lokal MongoDB databas. Döp databasen enligt “fornamn-efternamn”.
+![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E) ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white)
 
-Det är helt ok att skapa alla produkter med “mock” data, samt att för designens skull använda en “placeholder”-bild för produkterna, dvs att alla produkter har samma bild.
+#### Back end:
 
-### Skillnader mellan G och VG krav:
+![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white) ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
 
-För kravet G så behöver inte anänvdarens lösenord krypteras.
+## Screenshots
 
-För VG så behöver användarens lösenord i endpointen krypteras innan det sparas i databasen. Samt så skall alla administratörs endpoints skyddas med en API nyckel, dvs om inte rätt nyckel skickas med i POST body, eller som param i GET, så skall inte anropet hanteras av servern utan istället svara med en statuskod 401 (unauthorized) och lämna ett passande medelande ({“message”: “Not Authorized”).
+| Desktop Screeenshots                           |
+| ---------------------------------------------- |
+| ![Start page](readme/start_page.png)           |
+| ![Login popup](readme/login_popup.png)         |
+| ![Logged in state](readme/logged_in_state.png) |
+| ![Product list](readme/products_list.png)      |
+| ![Cart page](readme/order_page.png)            |
+| ![Order popup](readme/order_popup.png)         |
+| ![Order page](readme/order_page.png)           |
 
-OBS! Spara aldrig API nyckeln i databasen när du tex sparar en order eller en ny kategori.
+---
 
-Hårdkoda heller inte in nyckeln någonstans i backend, tänk på att nyckeln skall enkelt kunna ändras vid behov. Tex via en global variabel, eller en .env variabel.
+## Lessons Learned
 
-Skapar du en .env fil för projektet så skicka med ett exempel på env filen döpt till “example.env”.
+Being the first assignment working with API and backend it was a lot to be learned. But dealing with both a front end and back end and to understand all the connections was very good to learn. How to handle databases with MongoDB and to fetch data in the front end. Also creating a single page application and rendering a lot more HTML from JavaScript.
 
-För G nivå så behöver inte produkter sparas i kategorier. För VG så behöver kategorier kunna skapas och produkter sparas i olika kategorier.
+## Author
 
-### Frontend klienten skall kunna (VG krav):
-
-Skapa en ny användare samt logga in
-Lösenordet skall krypteras
-Se vilka produkter som finns i butiken, fördelat på olika kategorier. 
-På varje produkt så skall grundläggande info som pris, namn och bild (placeholder) visas.
-Kunna lägga en produkt i en kundvagn
-Skicka en order med alla produkter från kundvagnen
-Kunna se en sida med alla sina skapade orders, samt vilka produkter en order innehåller.
-
-Lämna in länken till ert skapde repo när ni är färidga. Skriv även ett meddelande om ni önskar att bli testade mot G eller VG kraven.
-
-Lycka till!
-
-Kom ihåg att comitta och pusha ofta!
+[@olandstorm](https://github.com/olandstorm)
